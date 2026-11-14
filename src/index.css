@@ -1,0 +1,17 @@
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Inter, Arial, sans-serif;
+  background: #f8f9fc;
+  color: #25234a;
+}
+
+button,
+textarea {
+  font: inherit;
+}
