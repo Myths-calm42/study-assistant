@@ -245,13 +245,31 @@ try {
       data: result.data
     })
 
+
 } catch (error) {
     console.error('Generation error:', error.message)
 
     const errorMessage = error.message || ''
 
+    // Handle Gemini daily quota / rate limit errors
+    const isQuotaExceeded =
+      error.status === 429 ||
+      error.code === 429 ||
+      errorMessage.includes('"code":429') ||
+      errorMessage.includes('RESOURCE_EXHAUSTED')
+
+    if (isQuotaExceeded) {
+      return res.status(429).json({
+        success: false,
+        error: 'Gemini API quota exceeded. Please try again after the quota resets.',
+        retryable: false
+      })
+    }
+
+    // Handle temporary Gemini service unavailability
     const isUnavailable =
       error.status === 503 ||
+      error.code === 503 ||
       errorMessage.includes('"code":503')
 
     if (isUnavailable) {
@@ -268,6 +286,7 @@ try {
       retryable: false
     })
 }
+
 })
 
 // Start server
