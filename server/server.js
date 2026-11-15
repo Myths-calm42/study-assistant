@@ -136,6 +136,15 @@ app.get('/api/health', (req, res) => {
 
 // Generate study material
 app.post('/api/generate', async (req, res) => {
+  console.log('[API] Request received:', Date.now())
+
+res.on('finish', () => {
+  console.log('[API] Response sent:', res.statusCode, Date.now())
+})
+
+res.on('close', () => {
+  console.log('[API] Connection closed. Response finished:', res.writableFinished)
+})
   
   try {
     // 1. Validate user input
@@ -239,6 +248,7 @@ try {
     }
 
     // 7. Return valid response
+    console.log('[API] Sending successful response to frontend')
     return res.status(200).json({
       success: true,
       mode,
