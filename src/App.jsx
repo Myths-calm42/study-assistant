@@ -97,7 +97,7 @@ function App() {
     // 60-second request timeout
     const timeoutId = setTimeout(() => {
       controller.abort()
-    }, 60000)
+    }, 120000)
 
     setLoading(true)
     setError('')
