@@ -183,7 +183,7 @@ Instructions:
 
     // 3. Call Gemini
     const response = await generateWithRetry({
-      model: 'gemini-3.6-flash',
+      model: 'gemini-3.8-flash',
       contents: prompt,
       config: {
         responseMimeType: 'application/json',
