@@ -104,7 +104,7 @@ function App() {
         `[StudyAI] Request timed out after ${Date.now() - requestStartedAt}ms. Aborting fetch.`
       )
       controller.abort()
-    }, 120000)
+    }, 180000)
 
     setLoading(true)
     setError('')
