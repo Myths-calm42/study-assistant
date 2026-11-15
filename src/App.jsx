@@ -94,8 +94,15 @@ function App() {
 
     const currentRequestId = ++requestId.current
 
-    // 60-second request timeout
+    // 120-second request timeout
+    const requestStartedAt = Date.now()
+    let timeoutTriggered = false
+
     const timeoutId = setTimeout(() => {
+      timeoutTriggered = true
+      console.error(
+        `[StudyAI] Request timed out after ${Date.now() - requestStartedAt}ms. Aborting fetch.`
+      )
       controller.abort()
     }, 120000)
 
@@ -116,6 +123,8 @@ function App() {
     setRetestMode(false)
 
     try {
+      console.info('[StudyAI] Starting /api/generate request.')
+
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/generate`, {
           method: 'POST',
           headers: {
@@ -129,7 +138,15 @@ function App() {
         }
       )
 
+      console.info(
+        `[StudyAI] Response headers received after ${Date.now() - requestStartedAt}ms. HTTP ${response.status}.`
+      )
+
       const result = await response.json()
+
+      console.info(
+        `[StudyAI] Response body parsed after ${Date.now() - requestStartedAt}ms.`
+      )
 
       if (!response.ok || !result.success) {
         throw new Error(
@@ -164,11 +181,22 @@ function App() {
       setSavedSessions((previous) => [newSession, ...previous])
 
     } catch (err) {
+      console.error(
+        `[StudyAI] Request failed after ${Date.now() - requestStartedAt}ms.`,
+        {
+          name: err.name,
+          message: err.message,
+          timeoutTriggered
+        }
+      )
+
       if (currentRequestId !== requestId.current) return
 
       if (err.name === 'AbortError') {
         setError(
-          'The request timed out or was cancelled. Please try again.'
+          timeoutTriggered
+            ? 'The request took longer than 120 seconds. Please try again.'
+            : 'The request was cancelled. Please try again.'
         )
       } else {
         setError(
@@ -178,6 +206,10 @@ function App() {
 
     } finally {
       clearTimeout(timeoutId)
+
+      console.info(
+        `[StudyAI] Request lifecycle finished after ${Date.now() - requestStartedAt}ms.`
+      )
 
       if (currentRequestId === requestId.current) {
         setLoading(false)
